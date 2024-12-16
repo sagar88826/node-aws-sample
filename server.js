@@ -34,4 +34,5 @@ const requestListener = (req, res) => {
 };
 const server = http.createServer(requestListener);
 server.listen(8000);
+console.log(process.env);
 console.log("Application running on Port 8000");
