@@ -5,8 +5,8 @@ jobs:
     docker:
       - image: arvindr226/alpine-ssh
     environment:
-      USER: ${CIRCLE_CI_USER}
-      DNS: ${CIRCLE_CI_DNS}
+      USER: ${USER}
+      DNS: ${DNS}
       SAGAR: ${SAGAR}
     steps:
       - run:
