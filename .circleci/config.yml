@@ -5,7 +5,10 @@ jobs:
     docker:
       - image: arvindr226/alpine-ssh
     steps:
-      - run: ssh -oStrictHostKeyChecking=no -v $USER@$DNS "./deploy.sh"
+      - run:
+          name: Deploy to EC2
+          command: |
+            ssh -o StrictHostKeyChecking=no -v $USER@$DNS "export SAGAR=$SAGAR && ./deploy.sh"
 
 workflows:
   deploy-to-ec2:
