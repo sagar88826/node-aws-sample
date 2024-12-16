@@ -5,22 +5,7 @@ jobs:
     docker:
       - image: arvindr226/alpine-ssh
     steps:
-      - run:
-          name: Debug PATH and Executable Locations
-          command: |
-            echo "Current PATH:"
-            echo $PATH
-            echo "Which npm:"
-            which npm || echo "npm not found"
-            echo "Which pm2:"
-            which pm2 || echo "pm2 not found"
-            echo "Node version:"
-            node --version || echo "Node not found"
-            echo "NPM version:"
-            npm --version || echo "NPM not found"
-      - run:
-          name: Deploy to EC2
-          command: ssh -oStrictHostKeyChecking=no -v $USER@$DNS "./deploy.sh"
+      - run: ssh -oStrictHostKeyChecking=no -v $USER@$DNS "./deploy.sh"
 
 workflows:
   deploy-to-ec2:
