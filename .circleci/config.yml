@@ -6,7 +6,6 @@ jobs:
       - image: arvindr226/alpine-ssh
     environment:
       USER: ${USER}
-      DNS: ${DNS}
       SAGAR: ${SAGAR}
     steps:
       - run:
