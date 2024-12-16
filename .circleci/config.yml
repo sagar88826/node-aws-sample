@@ -4,8 +4,14 @@ jobs:
   deploy:
     docker:
       - image: arvindr226/alpine-ssh
+    environment:
+      USER: ${CIRCLE_CI_USER}
+      DNS: ${CIRCLE_CI_DNS}
+      SAGAR: ${SAGAR}
     steps:
-      - run: ssh -oStrictHostKeyChecking=no -v $USER@$DNS "./deploy.sh"
+      - run:
+          name: Deploy to EC2
+          command: ssh -oStrictHostKeyChecking=no -v $USER@$DNS "./deploy.sh"
 
 workflows:
   deploy-to-ec2:
