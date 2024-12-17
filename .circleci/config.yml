@@ -4,18 +4,30 @@ jobs:
   deploy:
     docker:
       - image: arvindr226/alpine-ssh
+        # Alpine SSH image is used to ensure the ssh CLI tool is available for connecting to EC2.
     environment:
-      SAGAR: "your_value_here" # Set the environment variable globally for the job
+      SAGAR: "your_value_here" # Set the environment variable globally for the job.
     steps:
       - run:
           name: Debug PATH and Executable Locations
           command: |
             echo "Current PATH:"
             echo $PATH
+            # Suggestion: Check if necessary tools like SSH are available.
+            which ssh || echo "SSH is not available!"
+
       - run:
           name: Deploy to EC2
           command: |
-            ssh -o StrictHostKeyChecking=no -v $USER@$DNS "export SAGAR=$SAGAR && ./deploy.sh"
+            # Suggestion: Use StrictHostKeyChecking=no to avoid host key confirmation issues.
+            # Suggestion: Use bash -lc to ensure the login shell loads correct PATH variables on EC2.
+            ssh -o StrictHostKeyChecking=no -v $USER@$DNS "bash -lc 'export SAGAR=$SAGAR && ./deploy.sh'"
+
+            # Notes:
+            # - StrictHostKeyChecking=no ensures a smooth connection in CI environments.
+            # - bash -lc ensures that tools like npm are available on EC2's PATH.
+            # - Always verify that 'deploy.sh' exists on EC2 and is executable (use chmod +x).
+            # - Optionally, add error handling to ensure failures are logged clearly.
 
 workflows:
   deploy-to-ec2:
