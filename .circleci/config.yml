@@ -21,7 +21,8 @@ jobs:
           command: |
             # Suggestion: Use StrictHostKeyChecking=no to avoid host key confirmation issues.
             # Suggestion: Use bash -lc to ensure the login shell loads correct PATH variables on EC2.
-            ssh -o StrictHostKeyChecking=no -v $USER@$DNS "bash -lc 'export SAGAR=$SAGAR && ./deploy.sh'"
+            # ssh -o StrictHostKeyChecking=no -v $USER@$DNS "bash -lc 'export SAGAR=$SAGAR && ./deploy.sh'"
+            # ssh -o StrictHostKeyChecking=no -v $USER@$DNS "bash -lc 'source ~/.bashrc && export SAGAR=$SAGAR && ./deploy.sh'"
 
             # Notes:
             # - StrictHostKeyChecking=no ensures a smooth connection in CI environments.
