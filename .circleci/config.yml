@@ -8,6 +8,11 @@ jobs:
       SAGAR: "your_value_here" # Set the environment variable globally for the job
     steps:
       - run:
+          name: Debug PATH and Executable Locations
+          command: |
+            echo "Current PATH:"
+            echo $PATH
+      - run:
           name: Deploy to EC2
           command: |
             ssh -o StrictHostKeyChecking=no -v $USER@$DNS "export SAGAR=$SAGAR && ./deploy.sh"
