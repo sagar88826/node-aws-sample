@@ -48,6 +48,7 @@ jobs:
           command: |
             ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $USER@$DNS "
               # Execute the deployment script
+              export PATH=$PATH:/home/ubuntu/.npm-global/bin
               ./deploy.sh
             "
 
