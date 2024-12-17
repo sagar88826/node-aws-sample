@@ -4,33 +4,54 @@ jobs:
   deploy:
     docker:
       - image: arvindr226/alpine-ssh
-        # Alpine SSH image is used to ensure the ssh CLI tool is available for connecting to EC2.
-    environment:
-      SAGAR: "your_value_here" # Set the environment variable globally for the job.
     steps:
       - run:
-          name: Debug PATH and Executable Locations
+          name: Deploy Environment Variables to EC2
           command: |
-            echo "Current PATH:"
-            echo $PATH
-            # Suggestion: Check if necessary tools like SSH are available.
-            which ssh || echo "SSH is not available!"
+            ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $USER@$DNS '
+            # Function to add environment variables with safety checks
+            add_env_var() {
+              local var_name="$1"
+              local var_value="$2"
+              
+              # Only add if value is not empty
+              if [ -n "$var_value" ]; then
+                # Remove existing entries for this variable
+                sudo sed -i "/$var_name=/d" /etc/environment
+                
+                # Add the new variable
+                echo "$var_name=$var_value" | sudo tee -a /etc/environment
+              else
+                echo "Warning: $var_name is empty. Skipping."
+              fi
+            }
+
+            # Application Variables
+            add_env_var "PORT" "${PORT}"
+            add_env_var "CLIENT_URL" "${CLIENT_URL}"
+            add_env_var "DB" "${DB}"
+            add_env_var "JWT_SECRET" "${JWT_SECRET}"
+            add_env_var "EMAIL" "${EMAIL}"
+            add_env_var "PASS" "${PASS}"
+
+            # AWS Credentials
+            add_env_var "AWS_ACCESS_KEY_ID" "${AWS_ACCESS_KEY_ID}"
+            add_env_var "AWS_SECRET_ACCESS_KEY" "${AWS_SECRET_ACCESS_KEY}"
+            add_env_var "S3_REGION" "${S3_REGION}"
+            add_env_var "S3_BUCKET" "${S3_BUCKET}"
+
+            # Verify the additions
+            echo "Updated /etc/environment:"
+            cat /etc/environment
+            '
 
       - run:
-          name: Deploy to EC2
+          name: Execute Deployment Script
           command: |
-            # Suggestion: Use StrictHostKeyChecking=no to avoid host key confirmation issues.
-            # Suggestion: Use bash -lc to ensure the login shell loads correct PATH variables on EC2.
-            # ssh -o StrictHostKeyChecking=no -v $USER@$DNS "bash -lc 'export SAGAR=$SAGAR && ./deploy.sh'"
-            # ssh -o StrictHostKeyChecking=no -v $USER@$DNS "bash -lc 'source ~/.bashrc && export SAGAR=$SAGAR && ./deploy.sh'"
-            ssh -o StrictHostKeyChecking=no -v $USER@$DNS "bash -lc 'export PATH=\$PATH:/home/ubuntu/.npm-global/bin && export SAGAR=$SAGAR && ./deploy.sh'"
-
-
-            # Notes:
-            # - StrictHostKeyChecking=no ensures a smooth connection in CI environments.
-            # - bash -lc ensures that tools like npm are available on EC2's PATH.
-            # - Always verify that 'deploy.sh' exists on EC2 and is executable (use chmod +x).
-            # - Optionally, add error handling to ensure failures are logged clearly.
+            ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $USER@$DNS '
+            export PATH=$PATH:/home/ubuntu/.npm-global/bin
+            ./deploy.sh
+            '
 
 workflows:
   deploy-to-ec2:
