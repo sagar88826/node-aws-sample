@@ -19,32 +19,35 @@ jobs:
               
               # Only process if value is not empty
               if [ -n "$var_value" ]; then
-                # Remove the variable from the existing environment file if it exists
-                grep -v "^$var_name=" /etc/environment > "$temp_env"
+                # Copy existing /etc/environment to the temp file
+                cp /etc/environment "$temp_env"
+
+                # Remove the variable from the temp file if it exists
+                sed -i "/^${var_name}=/d" "$temp_env"
                 
                 # Append the new variable
-                echo "$var_name=$var_value" >> "$temp_env"
+                echo "${var_name}=${var_value}" >> "$temp_env"
                 
-                # Replace the original environment file
+                # Safely replace the original environment file
                 sudo mv "$temp_env" /etc/environment
               else
-                echo "Warning: $var_name is empty. Skipping."
+                echo "Warning: ${var_name} is empty. Skipping."
               fi
             }
 
             # Application Variables
-            update_env_var "PORT" "${PORT}"
-            update_env_var "CLIENT_URL" "${CLIENT_URL}"
-            update_env_var "DB" "${DB}"
-            update_env_var "JWT_SECRET" "${JWT_SECRET}"
-            update_env_var "EMAIL" "${EMAIL}"
-            update_env_var "PASS" "${PASS}"
+            update_env_var "PORT" "8000"
+            update_env_var "CLIENT_URL" "https://example.com"
+            update_env_var "DB" "mongodb://localhost:27017/mydatabase"
+            update_env_var "JWT_SECRET" "your_long_random_secret_key_here"
+            update_env_var "EMAIL" "your_email@example.com"
+            update_env_var "PASS" "your_secure_password"
 
             # AWS Credentials
-            update_env_var "AWS_ACCESS_KEY_ID" "${AWS_ACCESS_KEY_ID}"
-            update_env_var "AWS_SECRET_ACCESS_KEY" "${AWS_SECRET_ACCESS_KEY}"
-            update_env_var "S3_REGION" "${S3_REGION}"
-            update_env_var "S3_BUCKET" "${S3_BUCKET}"
+            update_env_var "AWS_ACCESS_KEY_ID" "your_aws_access_key"
+            update_env_var "AWS_SECRET_ACCESS_KEY" "your_aws_secret_key"
+            update_env_var "S3_REGION" "ap-south-1"
+            update_env_var "S3_BUCKET" "your-s3-bucket-name"
 
             # Verify the additions
             echo "Updated /etc/environment:"
@@ -55,7 +58,13 @@ jobs:
           name: Execute Deployment Script
           command: |
             ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $USER@$DNS '
+            # Load updated environment variables
+            source /etc/environment
+
+            # Append custom paths to PATH if necessary
             export PATH=$PATH:/home/ubuntu/.npm-global/bin
+
+            # Execute the deployment script
             ./deploy.sh
             '
 
