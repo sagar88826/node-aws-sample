@@ -4,11 +4,13 @@ jobs:
   deploy:
     docker:
       - image: arvindr226/alpine-ssh
+    environment:
+      SAGAR: "your_value_here" # Set the environment variable globally for the job
     steps:
       - run:
           name: Deploy to EC2
           command: |
-            ssh -o StrictHostKeyChecking=no -v $USER@$DNS "export SAGAR=$SAGAR && ./deploy.sh"
+            ssh -o StrictHostKeyChecking=no -v $USER@$DNS "SAGAR=$SAGAR && ./deploy.sh"
 
 workflows:
   deploy-to-ec2:
