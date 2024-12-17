@@ -33,7 +33,7 @@ jobs:
               update_env_var \"AWS_SECRET_ACCESS_KEY\" \"$AWS_SECRET_ACCESS_KEY\"
               update_env_var \"S3_REGION\" \"$S3_REGION\"
               update_env_var \"S3_BUCKET\" \"$S3_BUCKET\"
-              update_env_var \"KRSNA\" \"vasudevaya\"
+              update_env_var \"KRSNA\" \"govinda\"
 
               # Reload environment variables system-wide
               source /etc/environment
