@@ -9,43 +9,36 @@ jobs:
           name: Deploy Environment Variables to EC2
           command: |
             ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $USER@$DNS "
-              # Create a temporary file to store updated environment variables
-              temp_env=\$(mktemp)
-
               # Function to update environment variables
               update_env_var() {
                 local var_name=\"\$1\"
                 local var_value=\"\$2\"
                 
-                # Only process if value is not empty
                 if [ -n \"\$var_value\" ]; then
-                  # Remove the variable from the existing environment file if it exists
-                  grep -v \"^\$var_name=\" /etc/environment > \"\$temp_env\"
-                  
-                  # Append the new variable
-                  echo \"\$var_name=\$var_value\" >> \"\$temp_env\"
-                  
-                  # Replace the original environment file
-                  sudo mv \"\$temp_env\" /etc/environment
+                  sudo sed -i \"/^\$var_name=/d\" /etc/environment
+                  echo \"\$var_name=\$var_value\" | sudo tee -a /etc/environment > /dev/null
                 else
                   echo \"Warning: \$var_name is empty. Skipping.\"
                 fi
               }
 
-              # Pass CircleCI Environment Variables Explicitly
+              # Update environment variables using CircleCI values
               update_env_var \"PORT\" \"$PORT\"
               update_env_var \"CLIENT_URL\" \"$CLIENT_URL\"
               update_env_var \"DB\" \"$DB\"
               update_env_var \"JWT_SECRET\" \"$JWT_SECRET\"
               update_env_var \"EMAIL\" \"$EMAIL\"
               update_env_var \"PASS\" \"$PASS\"
-
               update_env_var \"AWS_ACCESS_KEY_ID\" \"$AWS_ACCESS_KEY_ID\"
               update_env_var \"AWS_SECRET_ACCESS_KEY\" \"$AWS_SECRET_ACCESS_KEY\"
               update_env_var \"S3_REGION\" \"$S3_REGION\"
               update_env_var \"S3_BUCKET\" \"$S3_BUCKET\"
+              update_env_var \"KRSNA\" \"vasudevaya\"
 
-              # Verify the additions
+              # Reload environment variables system-wide
+              source /etc/environment
+
+              # Verify updates
               echo \"Updated /etc/environment:\"
               cat /etc/environment
             "
@@ -54,8 +47,8 @@ jobs:
           name: Execute Deployment Script
           command: |
             ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $USER@$DNS "
-            export PATH=\$PATH:/home/ubuntu/.npm-global/bin
-            ./deploy.sh
+              # Execute the deployment script
+              ./deploy.sh
             "
 
 workflows:
