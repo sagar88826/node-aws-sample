@@ -33,7 +33,7 @@ jobs:
             }
 
             # Application Variables - Using CircleCI Environment Variables
-            update_env_var "PORT" "${PORT}"
+            update_env_var "PORT" "sagar"
             update_env_var "CLIENT_URL" "${CLIENT_URL}"
             update_env_var "DB" "${DB}"
             update_env_var "JWT_SECRET" "${JWT_SECRET}"
