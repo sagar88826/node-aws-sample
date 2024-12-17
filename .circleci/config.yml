@@ -10,7 +10,7 @@ jobs:
       - run:
           name: Deploy to EC2
           command: |
-            ssh -o StrictHostKeyChecking=no -v $USER@$DNS "SAGAR=$SAGAR && ./deploy.sh"
+            ssh -o StrictHostKeyChecking=no -v $USER@$DNS "export SAGAR=$SAGAR && ./deploy.sh"
 
 workflows:
   deploy-to-ec2:
